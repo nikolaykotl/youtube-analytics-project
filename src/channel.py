@@ -29,6 +29,7 @@ class Channel:
         youtube = build('youtube', 'v3', developerKey=api_key)
         channel_info = youtube.channels().list(id=channel_id, part='snippet,statistics').execute()['items'][0]
         return channel_info
+
     @property
     def channel_id(self):
         self.__channel_id
