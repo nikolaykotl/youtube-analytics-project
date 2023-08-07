@@ -9,12 +9,13 @@ class Channel:
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
         self.__channel_id = channel_id
-        self.title = Channel.info_channel(self.__channel_id)['snippet']['title']
-        self.description = Channel.info_channel(self.__channel_id)['snippet']['description']
+        data = build('youtube', 'v3', developerKey=os.getenv('API_KEY')).channels().list(id=self.__channel_id, part='snippet,statistics').execute()
+        self.title = data['items'][0]['snippet']['title']
+        self.description = data['items'][0]['snippet']['description']
         self.url = f'https://www.youtube.com/channel/{self.__channel_id}'
-        self.subscriber_count = Channel.info_channel(self.__channel_id)['statistics']['subscriberCount']
-        self.video_count = Channel.info_channel(self.__channel_id)['statistics']['videoCount']
-        self.view_count = Channel.info_channel(self.__channel_id)['statistics']['viewCount']
+        self.subscriber_count = data['items'][0]['statistics']['subscriberCount']
+        self.video_count = data['items'][0]['statistics']['videoCount']
+        self.view_count = data['items'][0]['statistics']['viewCount']
 
     def print_info(self) -> None:
         api_key: str = os.getenv('API_KEY')
@@ -22,13 +23,6 @@ class Channel:
         channel = youtube.channels().list(id=self.__channel_id, part='snippet,statistics').execute()
         info = json.dumps(channel, indent=2, ensure_ascii=False)
         return print(f'{info}')
-
-    @staticmethod
-    def info_channel(channel_id):
-        api_key: str = os.getenv('API_KEY')
-        youtube = build('youtube', 'v3', developerKey=api_key)
-        channel_info = youtube.channels().list(id=channel_id, part='snippet,statistics').execute()['items'][0]
-        return channel_info
 
     @property
     def channel_id(self):
